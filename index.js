@@ -45,12 +45,21 @@ app.get('/api/blogs', async (req, res) => {
 });
 
 app.post('/api/blogs', async (req, res) => {
-  console.log(req.body);
   try {
     const blog = await Blog.create(req.body);
     return res.json(blog);
   } catch (error) {
     return res.status(400).json({ error });
+  }
+});
+
+app.delete('/api/blogs/:id', async (req, res) => {
+  try {
+    const blog = await Blog.findByPk(req.params.id);
+    await blog.destroy();
+    return res.status(200).end();
+  } catch (error) {
+    return res.status(404).end();
   }
 });
 
