@@ -1,0 +1,4 @@
+postgres-info.txt
+.env
+node_modules
+fly.toml
