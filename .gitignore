@@ -1,4 +1,4 @@
-postgres-info.txt
+*.txt
 .env
 node_modules
 fly.toml
