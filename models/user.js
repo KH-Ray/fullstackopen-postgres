@@ -18,7 +18,10 @@ User.init(
       allowNull: false,
       unique: true,
       validate: {
-        is: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/i,
+        is: {
+          args: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/i,
+          msg: 'Validation isEmail on username failed',
+        },
       },
     },
     passwordHash: {

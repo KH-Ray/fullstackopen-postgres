@@ -1,20 +1,51 @@
 const bcrypt = require('bcrypt');
 const router = require('express').Router();
-const { User, Blog } = require('../models');
+const { User, Blog, ReadingList } = require('../models');
+const { Op } = require('sequelize');
 
 router.get('/', async (req, res) => {
   const users = await User.findAll({
+    attributes: { exclude: ['createdAt', 'updatedAt', 'passwordHash'] },
     include: {
       model: Blog,
-      attributes: { exclude: ['userId', 'id'] },
+      attributes: { exclude: ['userId', 'createdAt', 'updatedAt'] },
+      through: { attributes: [] },
     },
   });
   res.json(users);
 });
 
+router.get('/:id', async (req, res) => {
+  let read = {
+    [Op.in]: [true, false],
+  };
+
+  if (req.query.read) {
+    read = req.query.read === 'true';
+  }
+
+  const user = await User.findOne({
+    where: {
+      id: req.params.id,
+    },
+    attributes: { exclude: ['createdAt', 'updatedAt', 'passwordHash'] },
+    include: {
+      model: Blog,
+      attributes: { exclude: ['userId', 'createdAt', 'updatedAt'] },
+      through: {
+        attributes: ['id', 'read'],
+        where: {
+          read,
+        },
+      },
+    },
+  });
+
+  res.json(user);
+});
+
 router.post('/', async (req, res) => {
   const { username, name, password } = req.body;
-
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await User.create({

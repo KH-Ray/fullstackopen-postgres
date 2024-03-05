@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const router = require('express').Router();
+const express = require('express');
 
 const { SECRET } = require('../utils/config');
 const User = require('../models/user');
 
-router.post('/', async (req, res) => {
+router.post('/', express.urlencoded({ extended: false }), async (req, res) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({
@@ -29,6 +30,11 @@ router.post('/', async (req, res) => {
   };
 
   const token = jwt.sign(userForToken, SECRET);
+
+  req.session.token = token;
+  req.session.save();
+
+  console.log(req.session);
 
   res.status(200).send({ token, username: user.username, name: user.name });
 });

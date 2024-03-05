@@ -14,9 +14,7 @@ const errorHandler = (error, req, res, next) => {
   if (error.name === 'TypeError') {
     return res.status(404).json({ error: error.message });
   } else if (error.name === 'SequelizeValidationError') {
-    return res
-      .status(404)
-      .json({ error: 'Validation isEmail on username failed' });
+    return res.status(404).json({ error: error.message });
   } else if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' });
   }
@@ -26,7 +24,12 @@ const errorHandler = (error, req, res, next) => {
 
 const tokenExtractor = (req, res, next) => {
   const authorization = req.get('authorization');
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+  console.log(req.session.token);
+  if (
+    authorization &&
+    authorization.toLowerCase().startsWith('bearer ') &&
+    authorization.substring(7) === req.session.token
+  ) {
     try {
       req.decodedToken = jwt.verify(authorization.substring(7), SECRET);
     } catch {
